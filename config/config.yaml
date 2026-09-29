@@ -1,0 +1,110 @@
+# ==============================================================================
+# SOC Incident Response & Threat Alerting Pipeline - Configuration
+# ==============================================================================
+# This file controls pipeline behavior. Secrets (API keys, webhook URLs) are
+# NOT stored here -- they are loaded from environment variables (see .env.example).
+# ==============================================================================
+
+pipeline:
+  name: "Automated SOC Incident Response & Threat Alerting Pipeline"
+  version: "1.0.0"
+  # When true, no real HTTP calls are made to VirusTotal/AbuseIPDB/Slack/Discord.
+  # Deterministic mock/simulated responses are returned instead, keyed off the
+  # IOC value, so the pipeline can be demoed end-to-end without credentials.
+  test_mode: true
+  log_level: "INFO"
+
+# ------------------------------------------------------------------------------
+# IOC Extraction Settings
+# ------------------------------------------------------------------------------
+extraction:
+  extract_ipv4: true
+  extract_domains: true
+  extract_sha256: true
+  extract_md5: true
+  # Suppress RFC1918 / loopback / link-local / reserved / multicast addresses
+  suppress_private_ips: true
+  # Domain matches ending in these suffixes are treated as file artifacts, not
+  # domains, and are dropped from the domain IOC set (common false positives).
+  domain_false_positive_suffixes:
+    - ".exe"
+    - ".dll"
+    - ".bin"
+    - ".zip"
+    - ".ps1"
+    - ".bat"
+    - ".sh"
+    - ".log"
+    - ".tmp"
+  # Non-internet-routable / internal-use domain suffixes (RFC 2606, RFC 6762,
+  # and common corporate AD/DNS conventions). Mirrors RFC1918 IP suppression
+  # so internal hostnames never get sent to external threat-intel APIs.
+  domain_internal_suffixes:
+    - ".local"
+    - ".internal"
+    - ".corp"
+    - ".lan"
+    - ".home"
+    - ".test"
+    - ".invalid"
+    - ".example"
+    - ".localdomain"
+
+# ------------------------------------------------------------------------------
+# Threat Intelligence Enrichment Settings
+# ------------------------------------------------------------------------------
+enrichment:
+  virustotal:
+    base_url: "https://www.virustotal.com/api/v3"
+    # Free-tier VT default: 4 req/min. Adjust to your account tier.
+    requests_per_minute: 4
+    max_retries: 5
+    backoff_base_seconds: 2
+    backoff_max_seconds: 60
+    request_timeout_seconds: 15
+
+  abuseipdb:
+    base_url: "https://api.abuseipdb.com/api/v2"
+    requests_per_minute: 60
+    max_retries: 5
+    backoff_base_seconds: 2
+    backoff_max_seconds: 60
+    request_timeout_seconds: 15
+    max_age_in_days: 90
+
+# ------------------------------------------------------------------------------
+# Severity Classification Thresholds
+# ------------------------------------------------------------------------------
+# Each IOC is scored 0-100 by the enricher (blend of VT malicious-engine ratio
+# and AbuseIPDB confidence score, where applicable). The highest score across
+# all IOCs in an event determines the event's overall severity.
+severity_thresholds:
+  critical: 80
+  high: 50
+  medium: 20
+  low: 1
+  # Anything below "low" (score == 0, nothing flagged) is classified CLEAN.
+
+# ------------------------------------------------------------------------------
+# Alert Dispatch Settings
+# ------------------------------------------------------------------------------
+alerting:
+  # Only dispatch notifications for events at or above this severity.
+  minimum_severity_to_notify: "LOW"
+  slack:
+    enabled: true
+  discord:
+    enabled: true
+  severity_colors:
+    CRITICAL: "#FF0000"
+    HIGH: "#FF8C00"
+    MEDIUM: "#FFD700"
+    LOW: "#1E90FF"
+    CLEAN: "#2ECC71"
+  # Discord uses decimal integer colors instead of hex strings.
+  severity_colors_decimal:
+    CRITICAL: 16711680
+    HIGH: 16747520
+    MEDIUM: 16766720
+    LOW: 2003199
+    CLEAN: 3066993

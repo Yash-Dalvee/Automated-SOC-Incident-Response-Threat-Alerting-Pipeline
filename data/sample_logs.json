@@ -1,0 +1,47 @@
+[
+  {
+    "event_id": "evt-1001",
+    "timestamp": "2026-08-20T03:14:22Z",
+    "source": "auth.log",
+    "event_type": "ssh_brute_force",
+    "host": "prod-bastion-01",
+    "message": "Failed password for invalid user admin from 203.0.113.55 port 51422 ssh2. 47 failed attempts in 60 seconds from 203.0.113.55. Failed password for root from 203.0.113.55 port 51430 ssh2.",
+    "raw_syslog": "<34>Aug 20 03:14:22 prod-bastion-01 sshd[8912]: Failed password for invalid user admin from 203.0.113.55 port 51422 ssh2"
+  },
+  {
+    "event_id": "evt-1002",
+    "timestamp": "2026-08-20T09:41:07Z",
+    "source": "edr_alerts.json",
+    "event_type": "malware_file_download",
+    "host": "ws-finance-014",
+    "message": "Process powershell.exe downloaded file invoice_update.exe from hxxp://cdn-update-service.xyz/payload/invoice_update.exe. File hash SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b85 flagged by endpoint AV as Trojan.Generic. Secondary hash MD5 5d41402abc4b2a76b9719d911017c592 also observed for dropped payload.",
+    "raw_syslog": "<11>Aug 20 09:41:07 ws-finance-014 edr-agent: ALERT malware_download hash=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b85"
+  },
+  {
+    "event_id": "evt-1003",
+    "timestamp": "2026-08-20T14:02:55Z",
+    "source": "firewall.log",
+    "event_type": "c2_beaconing",
+    "host": "ws-engineering-221",
+    "message": "Outbound connection detected: internal host 10.10.4.22 established repeated beacon-pattern HTTPS connections (every 60s) to external host 198.51.100.77 on port 443, resolving to domain malicious-c2-server.badnet. TLS SNI mismatch detected. Traffic volume anomalous for workstation subnet.",
+    "raw_syslog": "<14>Aug 20 14:02:55 fw-edge-02 netflow: SRC=10.10.4.22 DST=198.51.100.77 DPT=443 SNI=malicious-c2-server.badnet PATTERN=periodic-beacon"
+  },
+  {
+    "event_id": "evt-1004",
+    "timestamp": "2026-08-20T16:30:11Z",
+    "source": "proxy.log",
+    "event_type": "internal_safe_traffic",
+    "host": "ws-marketing-055",
+    "message": "User browsed to internal resource http://intranet.corp.local and internal file share at 192.168.1.15. DNS lookup for company-portal.internal resolved to 172.16.5.10. No threat indicators observed, traffic conforms to standard business use policy.",
+    "raw_syslog": "<30>Aug 20 16:30:11 proxy-01 squid: TCP_MISS/200 GET http://intranet.corp.local/ SRC=192.168.1.15"
+  },
+  {
+    "event_id": "evt-1005",
+    "timestamp": "2026-08-20T22:47:39Z",
+    "source": "ids.log",
+    "event_type": "port_scan",
+    "host": "fw-edge-03",
+    "message": "IDS signature triggered: TCP SYN scan detected from external source 198.51.100.201 targeting 40 sequential ports on host 10.10.2.5 within an 8-second window. Scan pattern consistent with reconnaissance tooling (nmap-style). No successful connections established.",
+    "raw_syslog": "<11>Aug 20 22:47:39 fw-edge-03 suricata: [1:2001219:20] ET SCAN Potential SSH Scan SRC=198.51.100.201 DST=10.10.2.5"
+  }
+]
